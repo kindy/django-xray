@@ -1,0 +1,109 @@
+{% extends "xray/base.html" %}
+
+{% block content %}
+    <style>
+    .model-list > li {
+        clear: both;
+    }
+    .model-list > li:after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+    .model-fields {
+        min-width: 50%;
+    }
+    @media (min-width: 1300px) {
+        .model-fields {
+            min-width: initial;
+        }
+        .model-fields-col {
+            float: left;
+            width: 48%;
+        }
+        .model-method-col {
+            float: right;
+            width: 48%;
+        }
+    }
+
+    .model-fields thead th {
+        text-align: left;
+    }
+    .model-fields td {
+        padding: 3px;
+        border-bottom: 1px solid #CCC;
+    }
+
+    .model-fields-grouper td {
+        background: #D9F0F5;
+    }
+    </style>
+    <h2 id="section-model">Models</h2>
+
+    {% regroup models by group_name as grouped_models %}
+    <ol>
+        {% for group in grouped_models %}
+        <li><a href="#model-group-{{ group.grouper }}">{{ group.grouper }}</a> ({{ group.list|length }})</li>
+        {% endfor %}
+    </ol>
+
+    <ol class="model-list">
+        {% for group in grouped_models %}
+        <li id="model-group-{{ group.grouper }}" class="group-title"><a href="../pydoc/{{ group.list.0.module }}.html"><i>{{ group.grouper }}</i></a></li>
+
+        {% for model in group.list %}
+        <li id="{{ model.group_name|lower }}.{{ model.name|lower }}" class="doc-item">
+            <div>
+                <a href="../pydoc/{{ model.module }}.html#{{ model.name }}">{{ model.name }}</a>
+                <span class="item-from"> from <i>{{ model.module }}</i></span>
+                (table@db: {{ model.db_table }}@{{ model.using_db }})
+            </div>
+            {% if model.doc %}<pre class="model-doc">{{ model.doc }}</pre>{% endif %}
+
+            <div class="model-fields-col">
+            <table class="model-fields">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                {% regroup model.fields by group_name as grouped_fields %}
+                {% for field_group in grouped_fields %}
+                <tbody>
+                    <tr class="model-fields-grouper">
+                        <td colspan="3">{{ field_group.grouper }}</td>
+                    </tr>
+                    {% for field in field_group.list %}
+                    <tr>
+                        <td>{{ field.name }}</td>
+                        <td>{{ field.data_type }}</td>
+                        <td>{{ field.verbose }}
+                        {% if field.help_text %} - {{ field.help_text|safe }}{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% endfor %}
+            </table>
+            </div>
+
+            <div class="model-method-col">
+            <h4>Methods</h4>
+            <ul>
+                {% for method in model.methods %}<li>
+                    <div>
+                        {% if method.flag %}<span class="method-flag">{{ method.flag }}</span>{% endif %}
+                        .{{ method.name }}{% if not method.is_property %}<span class="method-argspec">{{ method.argspec }}</span>{% endif %}</div>
+                    {% if method.doc %}<pre class="method-doc">{{ method.doc }}</pre>{% endif %}
+                </li>{% endfor %}
+            </ul>
+            </div>
+            <br>
+        </li>
+        {% endfor %}
+        {% endfor %}
+    </ol>
+
+{% endblock %}

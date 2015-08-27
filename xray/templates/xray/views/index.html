@@ -1,0 +1,55 @@
+{% extends "xray/base.html" %}
+
+{% block submenu %}
+<div>
+<button onclick="toggleRawRegex()">Toggle Raw Regex</button>
+</div>
+{% endblock %}
+
+{% block content %}
+    <style>
+    .view-list .r-regex {
+        display: none;
+    }
+    .view-list-raw-regex .h-regex {
+        display: none;
+    }
+    .view-list-raw-regex .r-regex {
+        display: inline;
+    }
+    </style>
+    <script>
+    function toggleRawRegex() {
+        var el = document.getElementById('J-view-list');
+        if (el.className.match(/view-list-raw-regex/)) {
+            el.className = el.className.replace(/ *view-list-raw-regex/, '');
+        } else {
+            el.className += ' view-list-raw-regex';
+        }
+    }
+    </script>
+    <h2 id="section-view">Views</h2>
+
+    {% if is_detail %}
+    <p>
+        <a href="{% url 'xray.views.index' %}">Index</a> &gt;
+        <b><span class="item-from">{{ this_view.module }}.</span>{{ this_view.name }}</b>
+    </p>
+    <hr/>
+    {% endif %}
+
+    <ol class="view-list" id="J-view-list">
+        {% for view in views %}
+        <li class="doc-item">
+            <div>
+                <code class="h-regex">{{ view.url }}</code><code class="r-regex">{{ view.raw_url }}</code> :
+                <span class="item-from">{{ view.module }}.</span><a href="{% url 'xray.views.detail' full_name=view.full_name %}">{{ view.name }}</a>
+                <small><a href="{% url 'xray.pydoc.module' path=view.module %}#{{ view.name }}">pyd</a></small>
+                (<span class="item-from">in {{ view.url_mod }}</span>)
+            </div>
+            {% if view.doc %}<pre class="view-doc">{{ view.doc }}</pre>{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+
+{% endblock %}
