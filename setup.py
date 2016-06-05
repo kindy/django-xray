@@ -9,11 +9,10 @@ install_requires = [
 
 setup(
     name='django-xray',
-    version='0.1.0',
+    version='0.2.0',
     description='Xray is an developer helper tool for Django.',
     long_description='',
     author='Kindy Lin',
-    author_email='kindy61@gmail.com',
     url='https://github.com/kindy/django-xray',
     license='MIT',
     packages=find_packages(exclude=['tests']),
